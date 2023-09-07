@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ApplyChangesError","ApplyPatch","BadSyncMessage","Cursor","DecodeChange","Diff","Fork","Get","Increment","Insert","InsertObject","Isolate","Load","Mark","Materialize","ReceiveSyncMessage","Splice"],"struct":["BadActorId","EncodeChange","Merge","PopPatches"]};
