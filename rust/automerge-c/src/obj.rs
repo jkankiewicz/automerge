@@ -1,6 +1,7 @@
 use automerge as am;
 use std::any::type_name;
 use std::cell::RefCell;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::ops::Deref;
 
 use crate::actor_id::AMactorId;
@@ -134,6 +135,29 @@ pub unsafe extern "C" fn AMobjIdEqual(obj_id1: *const AMobjId, obj_id2: *const A
     match (obj_id1.as_ref(), obj_id2.as_ref()) {
         (Some(obj_id1), Some(obj_id2)) => obj_id1 == obj_id2,
         (None, None) | (None, Some(_)) | (Some(_), None) => false,
+    }
+}
+
+/// \memberof AMobjId
+/// \brief Generate a hash code from an object identifier.
+///
+/// \param[in] obj_id A pointer to an `AMobjId` struct.
+/// \return A `uint64_t`.
+/// \pre \p obj_id `!= NULL`
+/// \post `!`\p obj_id ` -> 0`
+/// \internal
+///
+/// #Safety
+/// obj_id must be a valid AMobjId pointer
+#[no_mangle]
+pub unsafe extern "C" fn AMobjIdHash(obj_id: *const AMobjId) -> u64 {
+    match obj_id.as_ref() {
+        Some(obj_id) => {
+            let mut hasher = DefaultHasher::new();
+            obj_id.as_ref().hash(&mut hasher);
+            hasher.finish()
+        }
+        None => 0,
     }
 }
 
