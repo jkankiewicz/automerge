@@ -195,11 +195,11 @@ pub enum AMobjType {
     /// The default tag, not a type signifier.
     Default = 0,
     /// A list.
-    List = 1,
+    List = 1 << 0,
     /// A key-value map.
-    Map,
+    Map = 1 << 1,
     /// A list of Unicode graphemes.
-    Text,
+    Text = 1 << 2,
 }
 
 impl Default for AMobjType {
