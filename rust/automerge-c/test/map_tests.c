@@ -1421,7 +1421,7 @@ static void test_get_range_values(void** state) {
         assert_false(AMitemIdxType(item_back2));
         assert_true(AMitemEqual(item1, item2));
         assert_true(AMobjIdEqual(AMitemObjId(item1), AMitemObjId(item2)));
-        assert_true(AMitemEqual(item1, item2));
+        assert_true(AMitemEqual(item_back1, item_back2));
         assert_true(AMobjIdEqual(AMitemObjId(item_back1), AMitemObjId(item_back2)));
         AMresultFree(AMstackPop(stack_ptr, NULL));
     }
