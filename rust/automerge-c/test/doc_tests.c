@@ -192,7 +192,7 @@ static void test_AMload(void** state) {
     assert_non_null(doc);
     AMitems keys = AMstackItems(stack_ptr, AMkeys(doc, AM_ROOT, NULL), cmocka_cb, AMexpect(AM_VAL_TYPE_STR));
 
-    enum Key {ASSETS, DATA, DOM, META, SIZE_};
+    enum Key { ASSETS, DATA, DOM, META, SIZE_ };
 
     assert_int_equal(AMitemsSize(&keys), SIZE_);
     size_t match_counts[SIZE_] = {0};
@@ -249,7 +249,7 @@ static void test_AMputActor_str(void** state) {
     assert_memory_equal(str.src, test_state->actor_id_str.src, str.count);
 }
 
-#define assert_str_equal(actual, expected) \
+#define assert_str_equal(actual, expected)            \
     assert_int_equal(actual.count, strlen(expected)); \
     assert_memory_equal(actual.src, expected, actual.count);
 
@@ -320,6 +320,30 @@ static void test_AMspliceText(void** state) {
 #endif
 }
 
+static void test_empty_AMdoc_disambiguation(void** state) {
+    TestState* test_state = *state;
+    AMstack** stack_ptr = &test_state->doc_state->base_state->stack;
+
+    AMitem* const doc_item0 = AMstackItem(stack_ptr, AMcreate(NULL), cmocka_cb, AMexpect(AM_VAL_TYPE_DOC));
+    AMdoc* doc0 = NULL;
+    assert_true(AMitemToDoc(doc_item0, &doc0));
+    AMitem* const doc_item1 = AMstackItem(stack_ptr, AMcreate(NULL), cmocka_cb, AMexpect(AM_VAL_TYPE_DOC));
+    AMdoc* doc1 = NULL;
+    assert_true(AMitemToDoc(doc_item1, &doc1));
+    /* Two empty AMdoc structs will compare equal                          */
+    assert_true(AMequal(doc0, doc1));
+    /* ...and have identical AMobjId structs                               */
+    AMobjId const* const doc_obj_id0 = AMitemObjId(doc_item0);
+    AMobjId const* const doc_obj_id1 = AMitemObjId(doc_item1);
+    assert_true(AMobjIdEqual(doc_obj_id0, doc_obj_id1));
+    /* ...with identical hash codes                                        */
+    uint64_t const doc_obj_id_hash0 = AMobjIdHash(doc_obj_id0);
+    uint64_t const doc_obj_id_hash1 = AMobjIdHash(doc_obj_id1);
+    assert_int_equal(doc_obj_id_hash0, doc_obj_id_hash1);
+    /* ...but the pointers to them are unique.                             */
+    assert_ptr_not_equal(doc0, doc1);
+}
+
 int run_doc_tests(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown(test_AMkeys_empty, setup, teardown),
@@ -329,6 +353,7 @@ int run_doc_tests(void) {
         cmocka_unit_test_setup_teardown(test_AMputActor_bytes, setup, teardown),
         cmocka_unit_test_setup_teardown(test_AMputActor_str, setup, teardown),
         cmocka_unit_test_setup_teardown(test_AMspliceText, setup, teardown),
+        cmocka_unit_test_setup_teardown(test_empty_AMdoc_disambiguation, setup, teardown),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
