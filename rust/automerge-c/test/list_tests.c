@@ -508,6 +508,22 @@ static void test_insert_at_index(void** state) {
     assert_int_equal(AMitemsSize(&range), 2);
 }
 
+static void test_AMobjIdHash(void** state) {
+    BaseState* base_state = *state;
+    AMstack** stack_ptr = &base_state->stack;
+    AMdoc* doc;
+    assert_true(AMitemToDoc(AMstackItem(stack_ptr, AMcreate(NULL), cmocka_cb, AMexpect(AM_VAL_TYPE_DOC)), &doc));
+    AMobjId const* const list0 =
+        AMitemObjId(AMstackItem(stack_ptr, AMmapPutObject(doc, AM_ROOT, AMstr("list0"), AM_OBJ_TYPE_LIST), cmocka_cb,
+                                AMexpect(AM_VAL_TYPE_OBJ_TYPE)));
+    uint64_t const list_hash0 = AMobjIdHash(list0);
+    AMobjId const* const list1 =
+        AMitemObjId(AMstackItem(stack_ptr, AMmapPutObject(doc, AM_ROOT, AMstr("list1"), AM_OBJ_TYPE_LIST), cmocka_cb,
+                                AMexpect(AM_VAL_TYPE_OBJ_TYPE)));
+    uint64_t const list_hash1 = AMobjIdHash(list1);
+    assert_int_not_equal(list_hash0, list_hash1);
+}
+
 int run_list_tests(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_AMlistIncrement),
@@ -538,6 +554,7 @@ int run_list_tests(void) {
         cmocka_unit_test_setup_teardown(test_get_range_values, setup_base, teardown_base),
         cmocka_unit_test_setup_teardown(test_get_NUL_string_value, setup_base, teardown_base),
         cmocka_unit_test_setup_teardown(test_insert_at_index, setup_base, teardown_base),
+        cmocka_unit_test_setup_teardown(test_AMobjIdHash, setup_base, teardown_base),
     };
 
     return cmocka_run_group_tests(tests, setup_doc, teardown_doc);
