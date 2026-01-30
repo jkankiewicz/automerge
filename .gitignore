@@ -1,7 +1,9 @@
-/.direnv
-perf.*
-/Cargo.lock
 build/
-.vim/*
+/Cargo.lock
+perf.*
+rust/automerge-c/automerge-c.code-workspace
 /target
+/.direnv
 .DS_Store
+.vim/*
+.vscode/
