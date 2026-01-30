@@ -1581,6 +1581,22 @@ static void test_get_range_values(void** state) {
     }
 }
 
+static void test_AMobjIdHash(void** state) {
+    BaseState* base_state = *state;
+    AMstack** stack_ptr = &base_state->stack;
+    AMdoc* doc;
+    assert_true(AMitemToDoc(AMstackItem(stack_ptr, AMcreate(NULL), cmocka_cb, AMexpect(AM_VAL_TYPE_DOC)), &doc));
+    AMobjId const* const map0 =
+        AMitemObjId(AMstackItem(stack_ptr, AMmapPutObject(doc, AM_ROOT, AMstr("map0"), AM_OBJ_TYPE_MAP), cmocka_cb,
+                                AMexpect(AM_VAL_TYPE_OBJ_TYPE)));
+    uint64_t const map_hash0 = AMobjIdHash(map0);
+    AMobjId const* const map1 =
+        AMitemObjId(AMstackItem(stack_ptr, AMmapPutObject(doc, AM_ROOT, AMstr("map1"), AM_OBJ_TYPE_LIST), cmocka_cb,
+                                AMexpect(AM_VAL_TYPE_OBJ_TYPE)));
+    uint64_t const map_hash1 = AMobjIdHash(map1);
+    assert_int_not_equal(map_hash0, map_hash1);
+}
+
 int run_map_tests(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_AMmapIncrement),
@@ -1604,6 +1620,7 @@ int run_map_tests(void) {
         cmocka_unit_test_setup_teardown(test_map_range_at_back_and_forth_single, setup_base, teardown_base),
         cmocka_unit_test_setup_teardown(test_map_range_at_back_and_forth_double, setup_base, teardown_base),
         cmocka_unit_test_setup_teardown(test_get_range_values, setup_base, teardown_base),
+        cmocka_unit_test_setup_teardown(test_AMobjIdHash, setup_base, teardown_base),
     };
 
     return cmocka_run_group_tests(tests, setup_doc, teardown_doc);
