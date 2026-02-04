@@ -80,15 +80,23 @@ endif()
 
 # In order to build with -Z build-std, we need to pass target explicitly.
 # https://doc.rust-lang.org/cargo/reference/unstable.html#build-std
-execute_process (
-    COMMAND ${RUSTC_CMD} -vV
-    OUTPUT_VARIABLE RUSTC_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string(REGEX REPLACE ".*host: ([^ \n]*).*" "\\1"
-    CARGO_TARGET
-    ${RUSTC_VERSION}
-)
+if(EMSCRIPTEN)
+
+    set(CARGO_TARGET "wasm32-unknown-emscripten")
+
+else()
+
+    execute_process (
+        COMMAND ${RUSTC_CMD} -vV
+        OUTPUT_VARIABLE RUSTC_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(REGEX REPLACE ".*host: ([^ \n]*).*" "\\1"
+        CARGO_TARGET
+        ${RUSTC_VERSION}
+    )
+
+endif()
 
 set(CARGO_FLAGS --target=${CARGO_TARGET})
 
@@ -428,7 +436,7 @@ install(EXPORT ${PROJECT_NAME}-config
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIB}
 )
 
-if(BUILD_TESTING)
+if(BUILD_TESTING AND NOT EMSCRIPTEN)
     add_subdirectory(test EXCLUDE_FROM_ALL)
 
     enable_testing()
