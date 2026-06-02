@@ -154,8 +154,8 @@ add_custom_command(
     COMMAND
         # Force cbindgen to regenerate the header file by updating its configuration file; removing the header won't.
         ${CMAKE_COMMAND} -DCONDITION=NOT_EXISTS -P ${PROJECT_SOURCE_DIR}/cmake/file-touch.cmake -- ${CBINDGEN_TARGET_DIR}/${LIBRARY_NAME}.h ${PROJECT_SOURCE_DIR}/cbindgen.toml
-    COMMAND
-        ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${CARGO_TARGET_DIR} CBINDGEN_TARGET_DIR=${CBINDGEN_TARGET_DIR} RUSTUP_TOOLCHAIN=${RUSTUP_TOOLCHAIN} RUSTFLAGS=${RUSTFLAGS} ${CARGO_CMD} build ${CARGO_FLAGS} ${CARGO_FEATURES}
+     COMMAND
+        ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${CARGO_TARGET_DIR} CBINDGEN_TARGET_DIR=${CBINDGEN_TARGET_DIR} RUSTUP_TOOLCHAIN=${RUSTUP_TOOLCHAIN} RUSTFLAGS=${RUSTFLAGS} ${CARGO_CMD} build ${CARGO_FLAGS} ${CARGO_FEATURES}        
     COMMAND
         # Compensate for cbindgen's translation of consecutive uppercase letters to "ScreamingSnakeCase".
         ${CMAKE_COMMAND} -DMATCH_REGEX=A_M\([^_]+\)_ -DREPLACE_EXPR=AM_\\1_ -P ${PROJECT_SOURCE_DIR}/cmake/file-regex-replace.cmake -- ${CBINDGEN_TARGET_DIR}/${LIBRARY_NAME}.h
@@ -210,14 +210,14 @@ set_target_properties(
         DEFINE_SYMBOL ""
         IMPORTED_IMPLIB ""
         IMPORTED_LOCATION "${CARGO_BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${BINDINGS_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_NO_SONAME "TRUE"
+        IMPORTED_NO_SONAME TRUE
         IMPORTED_SONAME ""
         LINKER_LANGUAGE C
         PUBLIC_HEADER "${CBINDGEN_TARGET_DIR}/${LIBRARY_NAME}.h"
         SOVERSION "${PROJECT_VERSION_MAJOR}"
         VERSION "${PROJECT_VERSION}"
         # \note Cargo exports all of the symbols automatically.
-        WINDOWS_EXPORT_ALL_SYMBOLS "TRUE"
+        WINDOWS_EXPORT_ALL_SYMBOLS TRUE
 )
 
 target_compile_definitions(${BINDINGS_NAME} INTERFACE $<TARGET_PROPERTY:${BINDINGS_NAME},DEFINE_SYMBOL>)
@@ -264,7 +264,10 @@ else()
     list(APPEND LIBRARY_DEPENDENCIES m)
 endif()
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS "TRUE")
+set_target_properties(${LIBRARY_NAME}
+    PROPERTIES POSITION_INDEPENDENT_CODE TRUE
+               WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+)
 
 # \note An imported library's INTERFACE_INCLUDE_DIRECTORIES property can't
 #       contain a non-existent path so its build-time include directory
