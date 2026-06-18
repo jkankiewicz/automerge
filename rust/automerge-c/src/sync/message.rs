@@ -88,7 +88,7 @@ pub unsafe extern "C" fn AMsyncMessageEncode(sync_message: *const AMsyncMessage)
 /// \brief Gets a summary of the changes that the sender already has.
 ///
 /// \param[in] sync_message A pointer to an `AMsyncMessage` struct.
-/// \return A pointer to an `AMresult` struct with `AM_SYNC_HAVE` items.
+/// \return A pointer to an `AMresult` struct with `AM_VAL_TYPE_SYNC_HAVE` items.
 /// \pre \p sync_message `!= NULL`
 /// \warning The returned `AMresult` struct pointer must be passed to
 ///          `AMresultFree()` in order to avoid a memory leak.
